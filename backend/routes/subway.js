@@ -4,9 +4,11 @@ const axios = require('axios');
 const protobuf = require('protobufjs');
 
 
-const protoFiles = [
-    './proto/gtfs-realtime-NYCT.proto'];
+const protoFiles = ['./proto/gtfs-realtime-NYCT.proto'];
+const subwayData = require('../subwayInfo/subwayInfo');
 
+const routeData = subwayData.parseSubwayRouteData();
+const stopData = subwayData.parseSubwayStopData();
 
 router.get('/ACE', async (req, res) => {
     try {
@@ -30,24 +32,26 @@ router.get('/ACE', async (req, res) => {
         // Decode the GTFS-RT data using GtfsRealtimeBindings
         const feed = FeedMessage.decode(new Uint8Array(buffer));
 
-        feed.entity.forEach((entity) => {
-            
-            // Check if the entity contains a trip update
-            if (entity.tripUpdate && entity.tripUpdate.trip) {
-                const tripDescriptor = entity.tripUpdate;
+        const entityData = [];
 
-                // Log the trip information
-                console.log('Trip Descriptor:', tripDescriptor);
+        for (const entity of feed.entity) {
+            if (entity.tripUpdate && entity.tripUpdate.stopTimeUpdate.length > 0) {
+                const stopUpdates = [];
+                for (const stopUpdate of entity.tripUpdate.stopTimeUpdate) {
+                    if (new Date(stopUpdate.arrival.time * 1000) >= new Date()) {
+                        stopUpdates.push({
+                            stop: stopData.get(stopUpdate.stopId),
+                            arrivalTime: new Date(stopUpdate.arrival.time * 1000).getTime()
+                        });
+                    }
+                }
+                entityData.push({
+                    stopUpdates: stopUpdates,
+                    currentRoute: routeData.get(entity.tripUpdate.trip.routeId)
+                });
             }
-            
-            // Check if the entity contains a vehicle position
-            if (entity.vehicle && entity.vehicle.trip) {
-                const tripDescriptor = entity.vehicle;
-                console.log('Trip Descriptor:', tripDescriptor);
-            }
-            console.log('//////////////////////////////');
-        });
-        res.send("HI");
+        }
+        res.send(entityData);
     } catch (error) {
         console.error('Error fetching and parsing GTFS-RT data:', error);
         res.status(500).json({ error: 'Failed to fetch and parse GTFS-RT data' });
