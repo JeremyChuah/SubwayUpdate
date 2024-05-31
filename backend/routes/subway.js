@@ -10,6 +10,8 @@ const subwayData = require('../subwayInfo/subwayInfo');
 const routeData = subwayData.parseSubwayRouteData();
 const stopData = subwayData.parseSubwayStopData();
 
+console.log(routeData)
+
 router.get('/ACE', async (req, res) => {
     try {
 
@@ -38,7 +40,10 @@ router.get('/ACE', async (req, res) => {
             if (entity.tripUpdate && entity.tripUpdate.stopTimeUpdate.length > 0) {
                 const stopUpdates = [];
                 for (const stopUpdate of entity.tripUpdate.stopTimeUpdate) {
-                    if (new Date(stopUpdate.arrival.time * 1000) >= new Date()) {
+                    const currentTime = new Date();
+                    const thrityMinPast = new Date(currentTime.getTime() + 30 * 60 * 1000);
+                    const arrivalTime = new Date(stopUpdate.arrival.time * 1000);
+                    if (stopUpdate.arrival && arrivalTime >= currentTime && arrivalTime <= thrityMinPast) {
                         stopUpdates.push({
                             stop: stopData.get(stopUpdate.stopId),
                             arrivalTime: new Date(stopUpdate.arrival.time * 1000).getTime()
@@ -47,7 +52,9 @@ router.get('/ACE', async (req, res) => {
                 }
                 entityData.push({
                     stopUpdates: stopUpdates,
-                    currentRoute: routeData.get(entity.tripUpdate.trip.routeId)
+                    currentRoute: routeData.get(entity.tripUpdate.trip.routeId),
+                    routeId: entity.tripUpdate.trip.routeId,
+                    last_station: stopData.get(entity.tripUpdate.stopTimeUpdate.at(-1).stopId).station_name
                 });
             }
         }
