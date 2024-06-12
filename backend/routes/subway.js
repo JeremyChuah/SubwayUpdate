@@ -10,8 +10,6 @@ const subwayData = require('../subwayInfo/subwayInfo');
 const routeData = subwayData.parseSubwayRouteData();
 const stopData = subwayData.parseSubwayStopData();
 
-console.log(routeData)
-
 router.get('/ACE', async (req, res) => {
     try {
 
