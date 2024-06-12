@@ -15,12 +15,12 @@ export default function HomeDisplay({navigation}) {
         { id: '7', color: '#FF6319', endpoint: 'BDFM', routes: ['B', 'D', 'F', 'M'] },
     ];
 
-    const goToCorrectRoute = (route) => {
-        navigation.navigate('Routes', {routeURL: route})
+    const goToCorrectRoute = (route, arr, color) => {
+        navigation.navigate('Routes', {routeURL: route, routeCharArr: arr, color: color})
     }
 
     const renderItem = ({ item }) => (
-        <Pressable onPress={() => goToCorrectRoute(item.endpoint)}>
+        <Pressable onPress={() => goToCorrectRoute(item.endpoint, item.routes, item.color)}>
             <View className="flex-row justify-center items-center my-4 bg-gray-200 p-3 rounded-lg shadow-lg">
                 {item.routes.map((route, index) => (
                         <View
