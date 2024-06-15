@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, SafeAreaView, FlatList, Pressable, Button } from "react-native";
 import axios from "axios";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const baseURL = 'http://127.0.0.1:3000';
 
-const RoutesDisplay = ({ route }) => {
+const RoutesDisplay = ({ route, navigation }) => {
     const { routeURL, routeCharArr, color } = route.params;
 
     const [data, setData] = useState(null);
@@ -73,14 +74,12 @@ const RoutesDisplay = ({ route }) => {
     }
 
     const renderItem = ({ item }) => (
-        <View
-            className="w-80 bg-white p-4 my-2 rounded-lg shadow-md"
-        >
-            <Text className="text-lg font-bold">{item}</Text>
-            <Pressable onPress={() => { console.log(data[item].stopUpdates.length) }}>
-                <Text>PRESS</Text>
-            </Pressable>
-        </View>
+        <Pressable onPress={() => navigation.navigate("SpecificRoute", {allRoutes: data[item].stopUpdates})}>
+            <View className="bg-white p-4 my-2 rounded-lg shadow-md flex flex-row justify-between items-center w-80">
+                <Text className="text-lg font-bold">{item}</Text>
+                <Icon name="chevron-right" size={15} color="black" />
+            </View>
+        </Pressable>
     );
 
 
@@ -89,15 +88,14 @@ const RoutesDisplay = ({ route }) => {
             {/* <Button onPress={() => console.log(curData)} title="HI"></Button> */}
             <View className="flex flex-row my-10 justify-center items-center">
                 {routeCharArr.map((route, index) => (
-                    <View
-                        key={index}
-                        className="h-10 w-10 rounded-full justify-center items-center mx-10"
-                        style={{ backgroundColor: selectedRouteId === route ? color : '#ccc' }}
-                    >
-                        <Pressable onPress={() => refilterData(route)}>
+                    <Pressable onPress={() => refilterData(route)} key={index}>
+                        <View
+                            className="h-10 w-10 rounded-full justify-center items-center mx-10"
+                            style={{ backgroundColor: selectedRouteId === route ? color : '#ccc' }}
+                        >
                             <Text className="text-white text-lg font-bold">{route}</Text>
-                        </Pressable>
-                    </View>
+                        </View>
+                    </Pressable>
                 ))}
             </View>
             <FlatList

@@ -8,6 +8,7 @@ const Stack = createNativeStackNavigator();
 import HomeDisplay from './screen/HomeDisplay'
 import Login from './screen/Login'
 import RoutesDisplay from './screen/routesDisplay';
+import SpecificRoute from './screen/SpecificRoute';
 
 
 const App = () => {
@@ -29,6 +30,10 @@ const App = () => {
         <Stack.Screen
           name="Routes"
           component={RoutesDisplay}
+        />
+        <Stack.Screen
+          name="SpecificRoute"
+          component={SpecificRoute}
         />
       </Stack.Navigator>
     </NavigationContainer>
