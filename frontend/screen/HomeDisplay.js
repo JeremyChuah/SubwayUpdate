@@ -6,13 +6,12 @@ import axios from 'axios';
 export default function HomeDisplay({navigation}) {
 
     const data = [
-        { id: '1', color: '#0039A6', endpoint: 'ACE', routes: ['A', 'C', 'E'] },
-        { id: '2', color: '#FF6319', endpoint: 'BDFM', routes: ['B', 'D', 'F', 'M'] },
-        { id: '3', color: '#6CBE45', endpoint: 'G', routes: ['G'] },
-        { id: '4', color: '#996633', endpoint: 'JZ', routes: ['J', 'Z'] },
-        { id: '5', color: '#A7A9AC', endpoint: 'L', routes: ['L'] },
-        { id: '6', color: '#FCCC0A', endpoint: 'NQR', routes: ['N', 'Q', 'R'] },
-        { id: '7', color: '#FF6319', endpoint: 'BDFM', routes: ['B', 'D', 'F', 'M'] },
+        { id: '1', color: '#0039A6', endpoint: 'ace', routes: ['A', 'C', 'E'] },
+        { id: '2', color: '#FF6319', endpoint: 'bdfm', routes: ['B', 'D', 'F', 'M'] },
+        { id: '3', color: '#6CBE45', endpoint: 'g', routes: ['G'] },
+        { id: '4', color: '#996633', endpoint: 'jz', routes: ['J', 'Z'] },
+        { id: '6', color: '#FCCC0A', endpoint: 'nqrw', routes: ['N', 'Q', 'R', 'W'] },
+        { id: '7', color: '#FF6319', endpoint: 'bdfm', routes: ['B', 'D', 'F', 'M'] },
     ];
 
     const goToCorrectRoute = (route, arr, color) => {

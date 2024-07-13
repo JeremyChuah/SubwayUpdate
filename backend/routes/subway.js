@@ -3,19 +3,23 @@ const router = express.Router();
 const axios = require('axios');
 const protobuf = require('protobufjs');
 
-
 const protoFiles = ['./proto/gtfs-realtime-NYCT.proto'];
 const subwayData = require('../subwayInfo/subwayInfo');
 
 const routeData = subwayData.parseSubwayRouteData();
 const stopData = subwayData.parseSubwayStopData();
 
-router.get('/ACE', async (req, res) => {
+async function fetchAndParseGTFSData(route, res) {
     try {
 
         const root = await protobuf.load(protoFiles);
         // Make a request to the MTA API to fetch the GTFS-RT data
-        const response = await fetch("https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace");
+        let response;
+        if (route != "nums"){
+            response = await fetch(`https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-${route}`);
+        } else {
+            response = await fetch(`https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs`);
+        }
 
         const FeedMessage = root.lookupType('FeedMessage');
 
@@ -38,14 +42,16 @@ router.get('/ACE', async (req, res) => {
             if (entity.tripUpdate && entity.tripUpdate.stopTimeUpdate.length > 0) {
                 const stopUpdates = [];
                 for (const stopUpdate of entity.tripUpdate.stopTimeUpdate) {
-                    const currentTime = new Date();
-                    const thrityMinPast = new Date(currentTime.getTime() + 30 * 60 * 1000);
-                    const arrivalTime = new Date(stopUpdate.arrival.time * 1000);
-                    if (stopUpdate.arrival && arrivalTime >= currentTime && arrivalTime <= thrityMinPast) {
-                        stopUpdates.push({
-                            stop: stopData.get(stopUpdate.stopId),
-                            arrivalTime: new Date(stopUpdate.arrival.time * 1000).getTime()
-                        });
+                    if (stopUpdate.arrival) {
+                        const currentTime = new Date();
+                        const thrityMinPast = new Date(currentTime.getTime() + 30 * 60 * 1000);
+                        const arrivalTime = new Date(stopUpdate.arrival.time * 1000);
+                        if (stopUpdate.arrival && arrivalTime >= currentTime && arrivalTime <= thrityMinPast) {
+                            stopUpdates.push({
+                                stop: stopData.get(stopUpdate.stopId),
+                                arrivalTime: new Date(stopUpdate.arrival.time * 1000).getTime()
+                            });
+                        }
                     }
                 }
                 entityData.push({
@@ -61,6 +67,11 @@ router.get('/ACE', async (req, res) => {
         console.error('Error fetching and parsing GTFS-RT data:', error);
         res.status(500).json({ error: 'Failed to fetch and parse GTFS-RT data' });
     }
-})
+}
+
+router.get('/:route', (req, res) => {
+    const route = req.params.route
+    fetchAndParseGTFSData(route, res);
+});
 
 module.exports = router;
