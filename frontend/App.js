@@ -9,6 +9,7 @@ import HomeDisplay from './screen/HomeDisplay'
 import Login from './screen/Login'
 import RoutesDisplay from './screen/routesDisplay';
 import SpecificRoute from './screen/SpecificRoute';
+import ChatScreen from './screen/ChatScreen';
 
 
 const App = () => {
@@ -35,6 +36,10 @@ const App = () => {
           name="SpecificRoute"
           component={SpecificRoute}
         />
+        <Stack.Screen
+          name="ChatScreen"
+          component={ChatScreen}
+        />        
       </Stack.Navigator>
     </NavigationContainer>
   );

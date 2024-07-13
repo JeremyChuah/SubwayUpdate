@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { View, Text, SafeAreaView, Pressable, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 
@@ -17,15 +19,28 @@ const SpecificRoute = ({ route, navigation }) => {
   const [currentRoute, setCurrentRoute] = useState([]);
   const [selectedStation, setSelectedStation] = useState([null, null]);
 
-  // Update allRoutes every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAllRoutes(prevRoutes => prevRoutes.map(route => filterRoute(route)));
-      setCurrentRoute([])
-    }, 60000); // 60000 ms = 1 minute
+  // Use useFocusEffect to handle the interval only when updating on this screen
+  useFocusEffect(
+    useCallback(() => {
+      const updateFilteredRoutes = () => {
+        setAllRoutes(prevRoutes => prevRoutes.map(route => filterRoute(route)));
+        setCurrentRoute([]);
+        setSelectedStation([null, null]);
+      };
 
-    return () => clearInterval(interval); // Clear interval on component unmount
-  }, []);
+      updateFilteredRoutes(); // Initial update
+
+      const interval = setInterval(updateFilteredRoutes, 60000); // Update every minute
+
+      return () => clearInterval(interval); // Clear interval when screen loses focus
+    }, [])
+  );
+
+  useEffect(() => {
+    setAllRoutes(prevRoutes => prevRoutes.map(route => filterRoute(route)));
+    setCurrentRoute([])
+    setSelectedStation([null, null])
+  }, [])
 
 
   const renderRouteItem = ({ item }) => {
@@ -91,7 +106,7 @@ const SpecificRoute = ({ route, navigation }) => {
       <View className="mt-3 flex h-24 w-4/5 bg-slate-200 p-4 rounded-md items-center">
           <Text>ETA at {selectedStation[1]} Station:</Text>
           <Text className="font-bold mb-2">{new Date(selectedStation[0]).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text>
-          <Pressable className="bg-gray-300 p-1 rounded-sm">
+          <Pressable className="bg-gray-300 p-1 rounded-sm" onPress={() => navigation.navigate("ChatScreen", {station_name: selectedStation[1], time: selectedStation[0]})}>
             <Text className="text-sm">Explore the station</Text>
           </Pressable>
         </View>
