@@ -35,7 +35,7 @@ const ChatScreen = ({route}) => {
             role = "assistant"
         } else if (message.user.name == 'user') {
             role = "user"
-            content = content
+            content = content + " " + detail_string
         }
 
         return {role: role, content: content}

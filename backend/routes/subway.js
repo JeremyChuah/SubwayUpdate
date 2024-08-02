@@ -46,7 +46,7 @@ async function fetchAndParseGTFSData(route, res) {
                         const currentTime = new Date();
                         const thrityMinPast = new Date(currentTime.getTime() + 30 * 60 * 1000);
                         const arrivalTime = new Date(stopUpdate.arrival.time * 1000);
-                        if (stopUpdate.arrival && arrivalTime >= currentTime && arrivalTime <= thrityMinPast) {
+                        if (stopUpdate.arrival && arrivalTime >= currentTime && arrivalTime <= thrityMinPast && stopData.get(stopUpdate.stopId)) {
                             stopUpdates.push({
                                 stop: stopData.get(stopUpdate.stopId),
                                 arrivalTime: new Date(stopUpdate.arrival.time * 1000).getTime()
